@@ -34,4 +34,4 @@ Try to connect to the url and verify that the return http status is 200.
 
 `https://www.example.com 200 <title>Example</title>`
 
-Try to connect to the url and verify that the return http status is 200, and the content containns the string `<title>Example</title>`
+Try to connect to the url and verify that the return http status is 200, and the content contains the string `<title>Example</title>`
