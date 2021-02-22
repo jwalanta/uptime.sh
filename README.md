@@ -1,6 +1,6 @@
 # uptime.sh
 
-Shell / Curl based website uptime checker and notifier.
+Shell / Curl based website uptime checker and notifier. Think of it as poor man's pingdom.
 
 Uses Twilio to send sms, mandrill to send email.
 
