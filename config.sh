@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Retries
+RETRY_TIMES=3
+RETRY_WAIT=10 # seconds, wait before retrying
+
 # Log path
 LOG_PATH="./logs/"
 
