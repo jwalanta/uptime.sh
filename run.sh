@@ -42,41 +42,54 @@ while read line; do
     
     CURL_CMD="curl $CURL_OPTS '$url' -o '$tmpfile'"
 
-    CURL_OUTPUT=$(eval $CURL_CMD)
-    CURL_EXIT_CODE=$?
-    CURL_STATUS=$(echo $CURL_OUTPUT | awk '{print $1}')
+    for ((n=1;n<=$RETRY_TIMES;n++)); do
 
-    # check
-    UPTIME_STATUS="OK"
-    ERROR_MESSAGE=""
+        CURL_OUTPUT=$(eval $CURL_CMD)
+        CURL_EXIT_CODE=$?
+        CURL_STATUS=$(echo $CURL_OUTPUT | awk '{print $1}')
 
-    # check for exit code
-    if [ $CURL_EXIT_CODE -ne 0 ]; then
-        UPTIME_STATUS="ERROR_CONNECT"
-        ERROR_MESSAGE="Connection Error. Code: $CURL_EXIT_CODE"
-    fi
+        # check
+        UPTIME_STATUS="OK"
+        ERROR_MESSAGE=""
 
-    # check for status if needed
-    if [[ "$UPTIME_STATUS" == "OK" && "$status" != "" && "$CURL_STATUS" != "$status" ]]; then
-        UPTIME_STATUS="ERROR_STATUS"
-        ERROR_MESSAGE="HTTP status error. Expected: $status, Returned: $CURL_STATUS"
-    fi
-
-    # check for content if needed
-    if [[ "$UPTIME_STATUS" == "OK" && "$content" != "" ]]; then
-        if ! grep -q "$content" $tmpfile; then
-            UPTIME_STATUS="ERROR_CONTENT"
-            ERROR_MESSAGE="Content error. '$content' missing"
+        # check for exit code
+        if [ $CURL_EXIT_CODE -ne 0 ]; then
+            UPTIME_STATUS="ERROR_CONNECT"
+            ERROR_MESSAGE="Connection Error. Code: $CURL_EXIT_CODE"
         fi
-    fi
 
-    # save to log
-    echo "$(date +%s) $url $UPTIME_STATUS $CURL_OUTPUT" >> $LOGFILE
+        # check for status if needed
+        if [[ "$UPTIME_STATUS" == "OK" && "$status" != "" && "$CURL_STATUS" != "$status" ]]; then
+            UPTIME_STATUS="ERROR_STATUS"
+            ERROR_MESSAGE="HTTP status error. Expected: $status, Returned: $CURL_STATUS"
+        fi
+
+        # check for content if needed
+        if [[ "$UPTIME_STATUS" == "OK" && "$content" != "" ]]; then
+            if ! grep -q "$content" $tmpfile; then
+                UPTIME_STATUS="ERROR_CONTENT"
+                ERROR_MESSAGE="Content error. '$content' missing"
+            fi
+        fi
+
+        # save to log
+        echo "$(date +%s) $url $UPTIME_STATUS $CURL_OUTPUT" >> $LOGFILE
+
+        if [[ "$UPTIME_STATUS" == "OK" || "$n" == "$RETRY_TIMES" ]]; then 
+            break
+        else 
+            # wait before retry
+            sleep $RETRY_WAIT
+        fi
+
+    done
 
     # notify if error
     if [[ "$UPTIME_STATUS" != "OK" ]]; then 
         send_email "Uptime fail $url" "$ERROR_MESSAGE"
         send_sms "Uptime fail $url. $ERROR_MESSAGE"
     fi
+
+    rm $tmpfile
 
 done < urls.txt
