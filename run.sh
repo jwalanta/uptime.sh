@@ -73,7 +73,7 @@ while read line; do
         fi
 
         # save to log
-        echo "$(date +%s) $url $UPTIME_STATUS $CURL_OUTPUT" >> $LOGFILE
+        echo "$(date +%s) $(hostname) $url $UPTIME_STATUS $CURL_OUTPUT" >> $LOGFILE
 
         if [[ "$UPTIME_STATUS" == "OK" || "$n" == "$RETRY_TIMES" ]]; then 
             break

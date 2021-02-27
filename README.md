@@ -16,7 +16,7 @@ Run `run.sh` using cron job at desired intervals. The script will go through the
 
 The script writes the log to file `logs/YYYYMMDD.log`, where YYYY = year, MM = month, DD = day. The line is in the following format:
 
-`unix_timestamp url status http_code time_total time_namelookup time_connect time_appconnect time_pretransfer time_redirect time_starttransfer`
+`unix_timestamp hostname url status http_code time_total time_namelookup time_connect time_appconnect time_pretransfer time_redirect time_starttransfer`
 
 The `time_*` values are from curl `--write-out` format variables. 
 
