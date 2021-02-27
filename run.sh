@@ -12,8 +12,24 @@ mkdir -p $LOG_PATH
 function send_email() {
     subject=$1
     body=$2
-    mandril_data="{\"key\": \"$MANDRILL_KEY\",\"raw_message\": \"From: $MANDRILL_FROM_EMAIL\nTo: $NOTIFY_EMAILS\nSubject: $subject\n\n$body\"}"
-    curl -s -o /dev/null 'https://mandrillapp.com/api/1.0/messages/send-raw.json' -d "$mandril_data"
+    for email in $(echo $NOTIFY_EMAILS | sed "s/,/ /g"); do
+        case "$EMAIL_METHOD" in
+            mail)
+                echo "$body" | mail -s "$subject" "$email"
+                ;;
+            ssmtp)
+                echo "Subject: $subject\n\n$body" | ssmtp $email
+                ;;
+            sendmail)
+                echo "Subject: $subject\n\n$body" | sendmail $email
+                ;;
+            mandrill)
+                mandril_data="{\"key\": \"$MANDRILL_KEY\",\"raw_message\": \"From: $MANDRILL_FROM_EMAIL\nTo: $email\nSubject: $subject\n\n$body\"}"
+                curl -s -o /dev/null 'https://mandrillapp.com/api/1.0/messages/send-raw.json' -d "$mandril_data"
+                ;;
+        esac
+    done
+
 }
 
 # send_sms $message
