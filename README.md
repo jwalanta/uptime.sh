@@ -2,9 +2,9 @@
 
 Shell / Curl based website uptime checker and notifier. Poor man's pingdom.
 
-Uses [Twilio](https://www.twilio.com/) to send sms. For email, uses `mail`, `sendmail`, `ssmtp`, or [Mandrill](https://www.mandrillapp.com) to send email.
+Uses [Twilio](https://www.twilio.com/) to send sms. For email, uses `mail`, `sendmail`, `ssmtp`, or [Mandrill](https://www.mandrillapp.com).
 
-- Can check just the connection, http status, or a string in the content fetched
+- Check just the connection, http status, or a string in the content fetched
 - Configurable multiple retries before notifying
 
 ## Usage
@@ -23,7 +23,7 @@ The `time_*` values are from curl `--write-out` format variables.
 
 ## URLs file format 
 
-The urls to test are in `urls.txt` file, and are in the following format:
+The urls to test are in `urls.txt` file, one per line, and are in one of the following formats:
 
 `https://www.example.com`
 
