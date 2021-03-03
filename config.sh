@@ -14,6 +14,7 @@ CURL_MAX_TIME=10 # seconds
 # NOTIFY numbers and emails. leave empty to disable
 NOTIFY_NUMBERS="+11234567890,+12223334567"
 NOTIFY_EMAILS="test@example.com,hello@test.com"
+NOTIFY_LIMIT_PER_HOUR=5 # max messages per hour. 0 to disable
 
 # SMS
 TWILIO_ACCOUNT_SID=""

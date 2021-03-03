@@ -45,6 +45,9 @@ function send_sms() {
 }
 
 LOGFILE="$LOG_PATH/$(date +"%Y%m%d").log"
+NOTIFICATIONS_LOGFILE="$LOG_PATH/notifications.log"
+touch $NOTIFICATIONS_LOGFILE
+
 CURL_WRITE_OUT="%{http_code} %{time_total} %{time_namelookup} %{time_connect} %{time_appconnect} %{time_pretransfer} %{time_redirect} %{time_starttransfer}"
 CURL_OPTS="-s --write-out '$CURL_WRITE_OUT' --connect-timeout $CURL_CONNECT_TIMEOUT --max-time $CURL_MAX_TIME"
 
@@ -102,8 +105,17 @@ while read line; do
 
     # notify if error
     if [[ "$UPTIME_STATUS" != "OK" ]]; then 
-        send_email "Uptime fail $url" "$ERROR_MESSAGE"
-        send_sms "Uptime fail $url. $ERROR_MESSAGE"
+
+        # check how many messages have been sent in the last one hour
+        ONE_HR_AGO=$(date +%s -d '1 hour ago')
+        NOTIFICATIONS_COUNT=$(awk -v ts="$ONE_HR_AGO" '$1 > ts' $NOTIFICATIONS_LOGFILE | wc -l)
+
+        if [[ "$NOTIFY_LIMIT_PER_HOUR" == "" || "$NOTIFY_LIMIT_PER_HOUR" == "0" || "$NOTIFICATIONS_COUNT" -lt "$NOTIFY_LIMIT_PER_HOUR" ]]; then
+            echo "$(date +%s) $url $ERROR_MESSAGE" >> $NOTIFICATIONS_LOGFILE
+            send_email "Uptime fail $url" "$ERROR_MESSAGE"
+            send_sms "Uptime fail $url. $ERROR_MESSAGE"
+        fi
+
     fi
 
     rm $tmpfile
